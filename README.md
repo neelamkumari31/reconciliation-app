@@ -6,9 +6,9 @@ plain-language explanation layer on top.
 
 ## Live deployment
 
-- App: `<FILL IN VERCEL URL>`
-- Repo: `<FILL IN GITHUB URL>`
-- Test login: `<FILL IN EMAIL>` / `<FILL IN PASSWORD>` (or sign up fresh — signup is open)
+- App: reconciliation-app-roan.vercel.app
+- Repo: https://github.com/neelamkumari31/reconciliation-app
+- Test login: test@example.com / test1234 (or sign up fresh — signup is open)
 
 ## Stack
 
