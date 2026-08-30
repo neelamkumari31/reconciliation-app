@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  passwordHash String
+  createdAt    DateTime      @default(now())
+  orders       Order[]
+  payments     Payment[]
+  discrepancies Discrepancy[]
+  runs         ReconciliationRun[]
+}
+
+// One row per order line, as ingested from orders.csv (raw values kept,
+// normalizedId used for matching so case/whitespace never causes a false miss)
+model Order {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderId         String   // raw, as in the CSV
+  normalizedId    String   // trimmed + uppercased, used for matching
+  orderDate       DateTime
+  customerEmail   String
+  currency        String
+  grossAmount     Float
+  discount        Float
+  netAmount       Float
+  status          String
+  createdAt       DateTime @default(now())
+
+  @@index([userId, normalizedId])
+}
+
+// One row per payment transaction, as ingested from payments.csv
+model Payment {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactionRef  String
+  processedAt     DateTime
+  orderReference  String   // raw
+  normalizedRef   String   // trimmed + uppercased
+  currency        String
+  amount          Float
+  fee             Float
+  netSettled      Float
+  type            String   // charge | refund
+  status          String   // settled | pending | failed
+  createdAt       DateTime @default(now())
+
+  @@index([userId, normalizedRef])
+}
+
+// One row per reconciliation run, so headline figures are reproducible/auditable
+model ReconciliationRun {
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime      @default(now())
+  totalOrders    Int
+  totalPayments  Int
+  valueReconciled Float
+  valueDisputed   Float
+  valueAtRisk     Float
+  discrepancies Discrepancy[]
+}
+
+// One row per discrepancy found by the deterministic engine
+model Discrepancy {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  runId         String
+  run           ReconciliationRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  type          String   // see lib/reconcile.ts DiscrepancyType
+  orderRef      String?
+  paymentRef    String?
+  amountExpected Float?
+  amountActual   Float?
+  amountAtRisk   Float
+  severity      String   // low | medium | high
+  detail        String   // short machine-generated description
+  explanation   String?  // filled in lazily by the LLM endpoint
+  createdAt     DateTime @default(now())
+
+  @@index([userId, runId])
+}
