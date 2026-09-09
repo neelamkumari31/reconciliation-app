@@ -17,7 +17,7 @@ plain-language explanation layer on top.
 - **Auth**: NextAuth (Auth.js), credentials provider, passwords hashed with bcrypt, JWT sessions. Routes under `/dashboard` and `/upload` are protected by middleware; every API route re-checks the session server-side and scopes all DB queries to `userId`.
 - **Database**: Postgres (hosted on Neon/Supabase — any Postgres works), accessed through Prisma.
 - **Charts**: Recharts.
-- **LLM**: Google Gemini (`gemini-2.0-flash`, free tier, no credit card required), called only from `app/api/explain/route.ts`.
+- **LLM**: Google Gemini (`gemini-3.5-flash`, free tier, no credit card required), called only from `app/api/explain/route.ts`.
 - **Hosting**: Vercel (app) + Neon/Supabase (DB).
 
 ## Local setup
