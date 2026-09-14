@@ -15,9 +15,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid input" }, { status: 400 });
   }
 
-  const email = parsed.data.email.toLowerCase().trim();
+const email = parsed.data.email.toLowerCase().trim();
 
-  const existing = await prisma.user.findUnique({ where: { email } });
+const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
     return NextResponse.json({ error: "An account with that email already exists" }, { status: 409 });
   }
