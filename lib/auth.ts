@@ -27,8 +27,7 @@ export const authOptions: NextAuthOptions = {
         return { id: user.id, email: user.email };
       },
     }),
-  ],
-  callbacks: {
+  ], callbacks: {
     async jwt({ token, user }) {
       if (user) token.userId = (user as any).id;
       return token;
@@ -40,3 +39,4 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
+  
